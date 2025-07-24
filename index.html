@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>easy maps3</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Business Research Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #0f0f0f;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .setup-card {
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .setup-card h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .setup-card ol {
+            margin-left: 20px;
+            line-height: 1.8;
+            color: #ccc;
+        }
+
+        .setup-card ol ul {
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+
+        .setup-card ol ul li {
+            list-style: disc;
+            margin-left: 20px;
+            margin-bottom: 3px;
+        }
+
+        .setup-card li {
+            margin-bottom: 10px;
+        }
+
+        .setup-card code {
+            background: #2a2a2a;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #4ecdc4;
+            font-size: 0.9em;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .setup-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #0a0a0a;
+            color: white;
+            font-size: 1em;
+        }
+
+        .setup-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn-connect {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .btn-connect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .status-message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .status-success {
+            background: #2d6a2d;
+            color: #90ee90;
+        }
+
+        .status-error {
+            background: #6a2d2d;
+            color: #ff6b6b;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .stat-box .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .controls {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 1px solid #333;
+        }
+
+        .business-card {
+            background: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .street-view-preview {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 200px;
+            height: 120px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #444;
+            background: #0a0a0a;
+        }
+
+        .street-view-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .business-card.has-status .street-view-preview {
+            top: 50px;
+        }
+
+        .business-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .business-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .business-card:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .business-card.marked-yes {
+            background: #1b4332;
+            border-color: #52b788;
+        }
+
+        .business-card.marked-no {
+            background: #3c1f1f;
+            border-color: #e63946;
+        }
+
+        .business-card.marked-maybe {
+            background: #3d3d1f;
+            border-color: #f77f00;
+        }
+
+        .business-info {
+            margin-bottom: 20px;
+            padding-right: 220px;
+        }
+
+        .business-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .business-address {
+            color: #ccc;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+
+        .business-contact {
+            color: #999;
+            font-size: 0.95em;
+        }
+
+        .email-link {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .email-link:hover {
+            text-decoration: underline;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-mega {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            font-size: 1.2em;
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+        }
+
+        .btn-mega:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        .btn-maps {
+            background: #4285f4;
+            color: white;
+        }
+
+        .btn-street {
+            background: #f4b400;
+            color: black;
+        }
+
+        .btn-search {
+            background: #0f9d58;
+            color: white;
+        }
+
+        .mark-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-yes {
+            background: #52b788;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-no {
+            background: #e63946;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-maybe {
+            background: #f77f00;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-yes:hover { background: #74c69d; }
+        .btn-no:hover { background: #f07178; }
+        .btn-maybe:hover { background: #fcbf49; }
+
+        .btn-updating {
+            background: #666 !important;
+            cursor: wait !important;
+        }
+
+        .filter-btn {
+            background: #2a2a2a;
+            color: white;
+            border: 2px solid #444;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .setup-input option {
+            background: #0a0a0a;
+            color: white;
+        }
+
+        .search-box {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #444;
+            background: #0a0a0a;
+            color: white;
+            font-size: 1em;
+            min-width: 300px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .notes-container {
+            position: relative;
+        }
+
+        .notes-input {
+            width: 100%;
+            padding: 10px;
+            padding-right: 45px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #0a0a0a;
+            color: white;
+            margin-top: 10px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .voice-btn {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .voice-btn:hover {
+            background: #764ba2;
+        }
+
+        .voice-btn.recording {
+            background: #e63946;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .marked-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-yes { background: #52b788; }
+        .status-no { background: #e63946; }
+        .status-maybe { background: #f77f00; }
+
+        .user-indicator {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            font-size: 0.85em;
+            color: #666;
+            font-style: italic;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .sync-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #2a2a2a;
+            border-radius: 8px;
+            border: 1px solid #444;
+            font-size: 0.9em;
+        }
+
+        .btn-sync {
+            background: #444;
+            color: white;
+            padding: 8px 16px;
+            margin-left: 10px;
+        }
+
+        .btn-sync:hover {
+            background: #555;
+        }
+
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .street-view-preview {
+                position: static;
+                width: 100%;
+                height: 150px;
+                margin-bottom: 15px;
+            }
+
+            .business-info {
+                padding-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 BUSINESS RESEARCH HUB</h1>
+        <p>Collaborative Research Tool - Powered by Google Sheets</p>
+    </div>
+
+    <!-- Setup Section -->
+    <div class="setup-card" id="setupSection">
+        <h3>📊 Connect to Google Sheets</h3>
+        
+        <div class="input-group">
+            <label>Google Sheet ID</label>
+            <input type="text" class="setup-input" id="sheetId" value="1XN82cWgsuD02iBoQnBx3-_HhpFttB5Cbz6mmNJ3kQpE">
+        </div>
+
+        <div class="input-group">
+            <label>Business Type</label>
+            <select class="setup-input" id="businessType">
+                <option value="0">Pawn Shops</option>
+                <option value="1">Churches</option>
+                <option value="2">Restaurants</option>
+                <option value="3">Auto Repair</option>
+                <option value="4">Auto Sales</option>
+                <option value="5">Veterinary Clinics</option>
+                <option value="6">Dental Offices</option>
+                <option value="7" selected>Liquor Stores</option>
+                <option value="8">Convenience Stores</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Your Name</label>
+            <input type="text" class="setup-input" id="userName" value="john">
+        </div>
+
+        <button class="btn-connect" onclick="connectToSheets()">🔗 Connect to Google Sheets</button>
+        
+        <div id="statusMessage"></div>
+    </div>
+
+    <div id="mainContent" class="hidden">
+        <div class="stats">
+            <div class="stat-box">
+                <div class="number" id="totalCount">0</div>
+                <div>Total Businesses</div>
+            </div>
+            <div class="stat-box">
+                <div class="number" id="yesCount">0</div>
+                <div>✅ Good Leads</div>
+            </div>
+            <div class="stat-box">
+                <div class="number" id="noCount">0</div>
+                <div>❌ Not Suitable</div>
+            </div>
+            <div class="stat-box">
+                <div class="number" id="maybeCount">0</div>
+                <div>🤔 Maybe</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search businesses...">
+            <button class="btn filter-btn active" onclick="filterBusinesses('all', this)">All</button>
+            <button class="btn filter-btn" onclick="filterBusinesses('unmarked', this)">New</button>
+            <button class="btn filter-btn" onclick="filterBusinesses('yes', this)">Yes</button>
+            <button class="btn filter-btn" onclick="filterBusinesses('no', this)">No</button>
+            <button class="btn filter-btn" onclick="filterBusinesses('maybe', this)">Maybe</button>
+        </div>
+
+        <div id="businessList">
+            <div class="loading">Loading businesses...</div>
+        </div>
+
+        <div class="sync-status">
+            <span id="syncStatus">Last sync: Never</span>
+            <button class="btn btn-sync" onclick="loadBusinesses()">🔄 Refresh</button>
+            <span style="margin-left: 20px; color: #667eea;">Type: <strong id="currentType">-</strong></span>
+            <button class="btn btn-sync" onclick="changeType()">Change Type</button>
+            <span style="margin-left: 20px; color: #667eea;">User: <strong id="currentUser">-</strong></span>
+            <button class="btn btn-sync" onclick="changeUser()">Change User</button>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const SHEET_ID_KEY = 'researchHubSheetId';
+        const BUSINESS_TYPE_KEY = 'researchHubBusinessType';
+        const USER_NAME_KEY = 'researchHubUserName';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyfJvobtH1tnf_bHQGVwH1-0eSFjJZ-pKJn2pkkktSx2vm6hi_VBFFyDMMhPpvZLJHV/exec';
+        
+        let businesses = [];
+        let currentFilter = 'all';
+        let recognition = null;
+        
+        // Initialize speech recognition
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+        }
+
+        // Load saved configuration
+        window.onload = function() {
+            const savedSheetId = localStorage.getItem(SHEET_ID_KEY);
+            const savedBusinessType = localStorage.getItem(BUSINESS_TYPE_KEY);
+            const savedUsername = localStorage.getItem(USER_NAME_KEY);
+            
+            if (savedSheetId) {
+                document.getElementById('sheetId').value = savedSheetId;
+            }
+            if (savedBusinessType) {
+                document.getElementById('businessType').value = savedBusinessType;
+            }
+            if (savedUsername) {
+                document.getElementById('userName').value = savedUsername;
+            }
+        };
+
+        async function connectToSheets() {
+            const sheetId = document.getElementById('sheetId').value.trim();
+            const businessTypeSelect = document.getElementById('businessType');
+            const selectedType = businessTypeSelect.value;
+            const username = document.getElementById('userName').value.trim();
+            
+            if (!sheetId || !username) {
+                showStatus('Please fill in all fields!', 'error');
+                return;
+            }
+
+            // Save configuration
+            localStorage.setItem(SHEET_ID_KEY, sheetId);
+            localStorage.setItem(BUSINESS_TYPE_KEY, selectedType);
+            localStorage.setItem(USER_NAME_KEY, username);
+            
+            showStatus('Connecting to Google Sheets...', 'success');
+            
+            try {
+                await loadBusinesses();
+                document.getElementById('setupSection').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                
+                const projectName = businessTypeSelect.options[businessTypeSelect.selectedIndex].text;
+                document.querySelector('.header h1').textContent = `🚀 ${projectName.toUpperCase()} RESEARCH HUB`;
+                document.getElementById('currentUser').textContent = username;
+                document.getElementById('currentType').textContent = projectName;
+                
+                // Set up auto-refresh every 30 seconds
+                setInterval(loadBusinesses, 30000);
+            } catch (error) {
+                showStatus('Failed to connect: ' + error.message, 'error');
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = `status-message status-${type}`;
+        }
+
+        async function loadBusinesses() {
+            const sheetId = document.getElementById('sheetId').value.trim();
+            const businessTypeSelect = document.getElementById('businessType');
+            const projectName = businessTypeSelect.options[businessTypeSelect.selectedIndex].text;
+            
+            try {
+                // Use Google Apps Script to load data (avoids CORS issues)
+                const response = await fetch(`${WEB_APP_URL}?action=getData&sheetName=${encodeURIComponent(projectName)}`);
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to load data');
+                }
+                
+                businesses = result.data || [];
+                
+                updateStats();
+                renderBusinesses();
+                document.getElementById('syncStatus').textContent = 'Last sync: ' + new Date().toLocaleTimeString();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showStatus('Error loading data: ' + error.message, 'error');
+            }
+        }
+
+        function updateStats() {
+            const totalCount = businesses.length;
+            const yesCount = businesses.filter(b => b.status.toLowerCase() === 'yes' || b.status.toLowerCase() === 'good lead').length;
+            const noCount = businesses.filter(b => b.status.toLowerCase() === 'no' || b.status.toLowerCase() === 'not suitable').length;
+            const maybeCount = businesses.filter(b => b.status.toLowerCase() === 'maybe').length;
+            
+            document.getElementById('totalCount').textContent = totalCount;
+            document.getElementById('yesCount').textContent = yesCount;
+            document.getElementById('noCount').textContent = noCount;
+            document.getElementById('maybeCount').textContent = maybeCount;
+        }
+
+        function filterBusinesses(filter, button) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            renderBusinesses();
+        }
+
+        function renderBusinesses() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const businessList = document.getElementById('businessList');
+            businessList.innerHTML = '';
+
+            const filteredBusinesses = businesses.filter(business => {
+                // Normalize status for filtering
+                const status = business.status.toLowerCase();
+                const isYes = status === 'yes' || status === 'good lead';
+                const isNo = status === 'no' || status === 'not suitable';
+                const isMaybe = status === 'maybe';
+                
+                // Apply filter
+                if (currentFilter === 'unmarked' && business.status) return false;
+                if (currentFilter === 'yes' && !isYes) return false;
+                if (currentFilter === 'no' && !isNo) return false;
+                if (currentFilter === 'maybe' && !isMaybe) return false;
+
+                // Apply search
+                if (searchTerm) {
+                    const searchIn = `${business.name} ${business.address} ${business.phone}`.toLowerCase();
+                    if (!searchIn.includes(searchTerm)) return false;
+                }
+
+                return true;
+            });
+
+            if (filteredBusinesses.length === 0) {
+                businessList.innerHTML = '<div class="loading">No businesses found matching your criteria.</div>';
+                return;
+            }
+
+            filteredBusinesses.forEach((business, index) => {
+                const status = business.status.toLowerCase();
+                const statusClass = status === 'yes' || status === 'good lead' ? 'yes' : 
+                                  status === 'no' || status === 'not suitable' ? 'no' : 
+                                  status === 'maybe' ? 'maybe' : '';
+                
+                const card = document.createElement('div');
+                card.className = `business-card ${statusClass ? 'marked-' + statusClass : ''} ${business.status ? 'has-status' : ''}`;
+                card.id = `business-${index}`;
+                
+                // Create street view image URL
+                const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview?size=200x120&location=${encodeURIComponent(business.address)}&key=AIzaSyAJSz4jku9urbCYsov9mZ3_wt_UCtvUQ5w`;
+                
+                // Create email link if email exists
+                let emailHtml = '';
+                if (business.email) {
+                    const subject = encodeURIComponent(`Introduction - ${business.name}`);
+                    const body = encodeURIComponent(`Dear ${business.name} Team,\n\nI hope this email finds you well.\n\nBest regards,\n${document.getElementById('userName').value}`);
+                    emailHtml = ` | ✉️ <a href="mailto:${business.email}?subject=${subject}&body=${body}" class="email-link">${business.email}</a>`;
+                }
+                
+                card.innerHTML = `
+                    ${business.status ? `<div class="marked-status status-${statusClass}">${business.status}</div>` : ''}
+                    <div class="street-view-preview">
+                        <img src="${streetViewUrl}" alt="Street view of ${business.name}" onerror="this.src='https://via.placeholder.com/200x120/1a1a1a/666?text=No+Street+View'">
+                    </div>
+                    <div class="business-info">
+                        <div class="business-name">${business.name}</div>
+                        <div class="business-address">📍 ${business.address}</div>
+                        <div class="business-contact">
+                            ${business.phone ? `📞 ${business.phone}` : ''}
+                            ${emailHtml}
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-mega" onclick="launchResearch('${encodeURIComponent(business.address)}', '${encodeURIComponent(business.name)}')">
+                            🚀 LAUNCH RESEARCH (Opens All)
+                        </button>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-small btn-maps" onclick="window.open('https://maps.google.com/maps?q=${encodeURIComponent(business.address)}', '_blank')">
+                            📍 Maps
+                        </button>
+                        <button class="btn btn-small btn-street" onclick="window.open('https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${encodeURIComponent(business.address)}', '_blank')">
+                            🏢 Street View
+                        </button>
+                        <button class="btn btn-small btn-search" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(business.name + ' ' + business.address)}', '_blank')">
+                            🔍 Search
+                        </button>
+                    </div>
+                    
+                    <div class="mark-buttons">
+                        <button class="btn btn-yes" id="btn-yes-${index}" onclick="markBusiness('${encodeURIComponent(business.name)}', 'Good Lead', ${index})">✅ Good Lead</button>
+                        <button class="btn btn-no" id="btn-no-${index}" onclick="markBusiness('${encodeURIComponent(business.name)}', 'Not Suitable', ${index})">❌ Not Suitable</button>
+                        <button class="btn btn-maybe" id="btn-maybe-${index}" onclick="markBusiness('${encodeURIComponent(business.name)}', 'Maybe', ${index})">🤔 Maybe</button>
+                    </div>
+                    
+                    <div class="notes-container">
+                        <textarea class="notes-input" id="notes-${index}" placeholder="Add notes about this business..." 
+                               onchange="updateNotes('${encodeURIComponent(business.name)}', this.value)">${business.notes}</textarea>
+                        <button class="voice-btn" id="voice-${index}" onclick="toggleVoice(${index})">🎤</button>
+                    </div>
+                    
+                    ${business.markedBy ? `<div class="user-indicator">Last updated by ${business.markedBy} ${business.markedAt ? 'on ' + business.markedAt : ''}</div>` : ''}
+                `;
+                
+                businessList.appendChild(card);
+            });
+        }
+
+        function launchResearch(address, name) {
+            window.open(`https://maps.google.com/maps?q=${decodeURIComponent(address)}`, '_blank');
+            window.open(`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${decodeURIComponent(address)}`, '_blank');
+            window.open(`https://www.google.com/search?q=${decodeURIComponent(name) + ' ' + decodeURIComponent(address)}`, '_blank');
+        }
+
+        async function markBusiness(businessName, status, index) {
+            // Visual feedback - disable all mark buttons for this business
+            const yesBtn = document.getElementById(`btn-yes-${index}`);
+            const noBtn = document.getElementById(`btn-no-${index}`);
+            const maybeBtn = document.getElementById(`btn-maybe-${index}`);
+            
+            // Store original text
+            const originalTexts = {
+                yes: yesBtn.textContent,
+                no: noBtn.textContent,
+                maybe: maybeBtn.textContent
+            };
+            
+            // Disable all buttons and show updating on the clicked one
+            yesBtn.disabled = true;
+            noBtn.disabled = true;
+            maybeBtn.disabled = true;
+            
+            // Show updating status on the clicked button
+            if (status === 'Good Lead') {
+                yesBtn.textContent = '⏳ Updating...';
+                yesBtn.classList.add('btn-updating');
+            } else if (status === 'Not Suitable') {
+                noBtn.textContent = '⏳ Updating...';
+                noBtn.classList.add('btn-updating');
+            } else if (status === 'Maybe') {
+                maybeBtn.textContent = '⏳ Updating...';
+                maybeBtn.classList.add('btn-updating');
+            }
+            
+            const username = document.getElementById('userName').value.trim();
+            const businessTypeSelect = document.getElementById('businessType');
+            const projectName = businessTypeSelect.options[businessTypeSelect.selectedIndex].text;
+            
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain',
+                    },
+                    body: JSON.stringify({
+                        sheetName: projectName,
+                        businessName: decodeURIComponent(businessName),
+                        status: status,
+                        markedBy: username
+                    })
+                });
+                
+                const result = await response.json();
+                if (!result.success) {
+                    console.error('Error:', result.error);
+                }
+                
+                // Refresh after update
+                setTimeout(loadBusinesses, 500);
+            } catch (error) {
+                console.error('Update error:', error);
+                // Still refresh to show any changes
+                setTimeout(loadBusinesses, 500);
+            } finally {
+                // Re-enable buttons and restore text if still on page
+                if (yesBtn) {
+                    yesBtn.disabled = false;
+                    yesBtn.textContent = originalTexts.yes;
+                    yesBtn.classList.remove('btn-updating');
+                }
+                if (noBtn) {
+                    noBtn.disabled = false;
+                    noBtn.textContent = originalTexts.no;
+                    noBtn.classList.remove('btn-updating');
+                }
+                if (maybeBtn) {
+                    maybeBtn.disabled = false;
+                    maybeBtn.textContent = originalTexts.maybe;
+                    maybeBtn.classList.remove('btn-updating');
+                }
+            }
+        }
+
+        async function updateNotes(businessName, notes) {
+            const username = document.getElementById('userName').value.trim();
+            const businessTypeSelect = document.getElementById('businessType');
+            const projectName = businessTypeSelect.options[businessTypeSelect.selectedIndex].text;
+            
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain',
+                    },
+                    body: JSON.stringify({
+                        sheetName: projectName,
+                        businessName: decodeURIComponent(businessName),
+                        notes: notes,
+                        markedBy: username
+                    })
+                });
+                
+                const result = await response.json();
+                if (!result.success) {
+                    console.error('Notes update error:', result.error);
+                }
+            } catch (error) {
+                console.error('Notes update error:', error);
+            }
+        }
+
+        // Voice recognition functions
+        function toggleVoice(index) {
+            if (!recognition) {
+                alert('Voice recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
+                return;
+            }
+            
+            const voiceBtn = document.getElementById(`voice-${index}`);
+            const notesField = document.getElementById(`notes-${index}`);
+            
+            if (voiceBtn.classList.contains('recording')) {
+                recognition.stop();
+                voiceBtn.classList.remove('recording');
+                voiceBtn.textContent = '🎤';
+                return;
+            }
+            
+            voiceBtn.classList.add('recording');
+            voiceBtn.textContent = '🔴';
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                const currentText = notesField.value;
+                notesField.value = currentText + (currentText ? ' ' : '') + transcript;
+                notesField.dispatchEvent(new Event('change'));
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                voiceBtn.classList.remove('recording');
+                voiceBtn.textContent = '🎤';
+                alert('Voice recognition error: ' + event.error);
+            };
+            
+            recognition.onend = function() {
+                voiceBtn.classList.remove('recording');
+                voiceBtn.textContent = '🎤';
+            };
+            
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error('Failed to start recognition:', error);
+                voiceBtn.classList.remove('recording');
+                voiceBtn.textContent = '🎤';
+            }
+        }
+
+        // Search functionality
+        document.getElementById('searchBox')?.addEventListener('input', renderBusinesses);
+
+        // Change user function
+        window.changeUser = function() {
+            const username = document.getElementById('userName').value.trim();
+            const newUsername = prompt('Enter your name:', username);
+            if (newUsername && newUsername.trim()) {
+                document.getElementById('userName').value = newUsername.trim();
+                localStorage.setItem(USER_NAME_KEY, newUsername.trim());
+                document.getElementById('currentUser').textContent = newUsername.trim();
+                alert(`Username changed to: ${newUsername.trim()}`);
+            }
+        }
+
+        // Change business type function
+        window.changeType = function() {
+            document.getElementById('setupSection').classList.remove('hidden');
+            document.getElementById('mainContent').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
+<!-- partial -->
+  
+</body>
+</html>
