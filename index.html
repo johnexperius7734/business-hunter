@@ -284,16 +284,6 @@
             text-decoration: underline;
         }
 
-        .phone-link {
-            color: #4ecdc4;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .phone-link:hover {
-            text-decoration: underline;
-        }
-
         .action-buttons {
             display: flex;
             gap: 10px;
@@ -562,7 +552,7 @@
     <div class="header">
         <h1>🚀 BUSINESS RESEARCH HUB</h1>
         <p>Collaborative Research Tool - Powered by Google Sheets</p>
-        <p style="font-size: 0.9em; opacity: 0.8;">📞 Phone numbers are clickable for RingCentral | 🎤 Click mic to start/stop recording</p>
+        <p style="font-size: 0.9em; opacity: 0.8;">📱 Click 'Call' to dial | 📋 Click 'Copy' for RingCentral | 🎤 Click mic to start/stop recording</p>
     </div>
 
     <!-- Setup Section -->
@@ -597,6 +587,23 @@
         <button class="btn-connect" onclick="connectToSheets()">🔗 Connect to Google Sheets</button>
         
         <div id="statusMessage"></div>
+        
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #333; color: #999; font-size: 0.9em;">
+            <strong>Phone Calling Options:</strong>
+            <p style="margin-top: 10px;">
+                <strong>• Direct Call:</strong> Click the "Call" button to use your device's default calling app<br>
+                <strong>• RingCentral:</strong> Click "Copy" to copy the number, then paste in RingCentral app
+            </p>
+            
+            <div style="margin-top: 15px; padding: 10px; background: #2a2a2a; border-radius: 8px;">
+                <strong>Test Phone Features:</strong><br>
+                <div style="margin-top: 10px;">
+                    <a href="tel:14055551234" class="btn btn-small" style="background: #4ecdc4; display: inline-block; text-decoration: none;">📱 Test Call</a>
+                    <button class="btn btn-small copy-phone-btn" data-phone="14055551234" style="margin-left: 5px; background: #667eea;">📋 Test Copy</button>
+                </div>
+                <small style="color: #888; display: block; margin-top: 5px;">Test if calling and copying work on your device</small>
+            </div>
+        </div>
     </div>
 
     <div id="mainContent" class="hidden">
@@ -821,12 +828,22 @@
                     emailHtml = ` | ✉️ <a href="mailto:${business.email}?subject=${subject}&body=${body}" class="email-link">${business.email}</a>`;
                 }
                 
-                // Create phone link for RingCentral
+                // Create phone link with call and copy buttons
                 let phoneHtml = '';
                 if (business.phone) {
-                    // Format phone number for RingCentral (remove non-numeric characters)
-                    const cleanPhone = business.phone.replace(/\D/g, '');
-                    phoneHtml = `📞 <a href="tel:${cleanPhone}" class="phone-link" onclick="handlePhoneClick('${cleanPhone}', event)">${business.phone}</a>`;
+                    // Clean the phone number for dialing
+                    let cleanPhone = business.phone.replace(/\D/g, '');
+                    
+                    // Ensure it's a valid US number (add 1 if needed)
+                    if (cleanPhone.length === 10) {
+                        cleanPhone = '1' + cleanPhone;
+                    }
+                    
+                    phoneHtml = `
+                        📞 ${business.phone} 
+                        <a href="tel:${cleanPhone}" class="btn btn-small" style="margin-left: 10px; padding: 4px 12px; font-size: 0.85em; background: #4ecdc4; text-decoration: none;">📱 Call</a>
+                        <button class="btn btn-small copy-phone-btn" data-phone="${cleanPhone}" style="margin-left: 5px; padding: 4px 12px; font-size: 0.85em; background: #667eea;">📋 Copy</button>
+                    `;
                 }
                 
                 card.innerHTML = `
@@ -1104,6 +1121,20 @@
 
         // Search functionality
         document.getElementById('searchBox')?.addEventListener('input', renderBusinesses);
+        
+        // Copy phone button handler
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('copy-phone-btn')) {
+                e.preventDefault();
+                const phoneNumber = e.target.dataset.phone;
+                navigator.clipboard.writeText(phoneNumber).then(() => {
+                    alert(`Phone number ${phoneNumber} copied!\n\nYou can now paste this in RingCentral or any calling app.`);
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    alert('Failed to copy phone number. Please try again.');
+                });
+            }
+        });
 
         // Change user function
         window.changeUser = function() {
@@ -1121,25 +1152,6 @@
         window.changeType = function() {
             document.getElementById('setupSection').classList.remove('hidden');
             document.getElementById('mainContent').classList.add('hidden');
-        }
-
-        // Handle phone clicks for RingCentral integration
-        window.handlePhoneClick = function(phoneNumber, event) {
-            // RingCentral click-to-call protocols
-            // Try multiple methods to ensure compatibility
-            
-            // Method 1: RingCentral Protocol
-            window.location.href = `rcmobile://call?number=${phoneNumber}`;
-            
-            // Method 2: If RingCentral app isn't responding, try the web version
-            setTimeout(() => {
-                if (confirm('Did RingCentral open? If not, click OK to try the web version.')) {
-                    window.open(`https://app.ringcentral.com/webphone/call?number=${phoneNumber}`, '_blank');
-                }
-            }, 1000);
-            
-            // Prevent default tel: behavior
-            event.preventDefault();
         }
     </script>
 </body>
