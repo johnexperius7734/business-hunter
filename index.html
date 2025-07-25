@@ -273,6 +273,8 @@
         .business-contact {
             color: #999;
             font-size: 0.95em;
+            position: relative;
+            z-index: 1;
         }
 
         .email-link {
@@ -282,6 +284,47 @@
 
         .email-link:hover {
             text-decoration: underline;
+        }
+
+        .phone-number {
+            cursor: pointer;
+            position: relative;
+            display: inline-block;
+            color: #4ecdc4;
+            transition: color 0.2s ease;
+            user-select: all;
+        }
+
+        .phone-number:hover {
+            text-decoration: underline;
+            color: #6eeee6;
+        }
+
+        .phone-number::after {
+            content: "Click to copy";
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .phone-number:hover::after {
+            opacity: 1;
+        }
+
+        .copy-success {
+            color: #52b788 !important;
         }
 
         .action-buttons {
@@ -818,7 +861,7 @@
                         <div class="business-name">${business.name}</div>
                         <div class="business-address">📍 ${business.address}</div>
                         <div class="business-contact">
-                            ${business.phone ? `📞 ${business.phone}` : ''}
+                            ${business.phone ? `📞 <span class="phone-number" onclick="copyPhoneByIndex(${originalIndex})">${business.phone}</span>` : ''}
                             ${emailHtml}
                         </div>
                     </div>
@@ -1067,6 +1110,32 @@
         window.changeType = function() {
             document.getElementById('setupSection').classList.remove('hidden');
             document.getElementById('mainContent').classList.add('hidden');
+        }
+
+        // Copy phone number function
+        window.copyPhoneByIndex = function(index) {
+            const business = businesses[index];
+            if (!business || !business.phone) return;
+            
+            const phoneNumber = business.phone;
+            
+            // Copy the phone number as displayed (with formatting)
+            navigator.clipboard.writeText(phoneNumber).then(() => {
+                // Find the phone span that was clicked
+                const phoneSpan = document.querySelector(`#business-${index} .phone-number`);
+                if (phoneSpan) {
+                    phoneSpan.classList.add('copy-success');
+                    const originalText = phoneSpan.textContent;
+                    phoneSpan.textContent = '✓ Copied!';
+                    
+                    setTimeout(() => {
+                        phoneSpan.textContent = originalText;
+                        phoneSpan.classList.remove('copy-success');
+                    }, 2000);
+                }
+            }).catch(err => {
+                alert('Failed to copy phone number. You can manually select and copy it.');
+            });
         }
     </script>
 </body>
