@@ -284,6 +284,16 @@
             text-decoration: underline;
         }
 
+        .phone-link {
+            color: #4ecdc4;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .phone-link:hover {
+            text-decoration: underline;
+        }
+
         .action-buttons {
             display: flex;
             gap: 10px;
@@ -552,6 +562,7 @@
     <div class="header">
         <h1>🚀 BUSINESS RESEARCH HUB</h1>
         <p>Collaborative Research Tool - Powered by Google Sheets</p>
+        <p style="font-size: 0.9em; opacity: 0.8;">📞 Phone numbers are clickable for RingCentral | 🎤 Click mic to start/stop recording</p>
     </div>
 
     <!-- Setup Section -->
@@ -646,9 +657,10 @@
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
+            recognition.continuous = true;  // Keep listening
+            recognition.interimResults = true;  // Show results while speaking
             recognition.lang = 'en-US';
+            recognition.maxAlternatives = 1;
         }
 
         // Load saved configuration
@@ -809,6 +821,14 @@
                     emailHtml = ` | ✉️ <a href="mailto:${business.email}?subject=${subject}&body=${body}" class="email-link">${business.email}</a>`;
                 }
                 
+                // Create phone link for RingCentral
+                let phoneHtml = '';
+                if (business.phone) {
+                    // Format phone number for RingCentral (remove non-numeric characters)
+                    const cleanPhone = business.phone.replace(/\D/g, '');
+                    phoneHtml = `📞 <a href="tel:${cleanPhone}" class="phone-link" onclick="handlePhoneClick('${cleanPhone}', event)">${business.phone}</a>`;
+                }
+                
                 card.innerHTML = `
                     ${business.status ? `<div class="marked-status status-${statusClass}">${business.status}</div>` : ''}
                     <div class="street-view-preview">
@@ -818,7 +838,7 @@
                         <div class="business-name">${business.name}</div>
                         <div class="business-address">📍 ${business.address}</div>
                         <div class="business-contact">
-                            ${business.phone ? `📞 ${business.phone}` : ''}
+                            ${phoneHtml}
                             ${emailHtml}
                         </div>
                     </div>
@@ -1017,26 +1037,60 @@
                 return;
             }
             
+            // Clear any previous results
+            let finalTranscript = '';
+            let lastResultIndex = 0;
+            
             voiceBtn.classList.add('recording');
             voiceBtn.textContent = '🔴';
             
             recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript;
-                const currentText = notesField.value;
-                notesField.value = currentText + (currentText ? ' ' : '') + transcript;
-                notesField.dispatchEvent(new Event('change'));
+                let interimTranscript = '';
+                
+                // Process new results since last update
+                for (let i = lastResultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                        lastResultIndex = i + 1;
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                // Update the field with final transcript
+                if (finalTranscript) {
+                    const currentText = notesField.value;
+                    const baseText = currentText.substring(0, currentText.lastIndexOf(finalTranscript) >= 0 ? currentText.lastIndexOf(finalTranscript) : currentText.length);
+                    notesField.value = baseText + finalTranscript;
+                    notesField.dispatchEvent(new Event('change'));
+                }
             };
             
             recognition.onerror = function(event) {
-                console.error('Speech recognition error:', event.error);
-                voiceBtn.classList.remove('recording');
-                voiceBtn.textContent = '🎤';
-                alert('Voice recognition error: ' + event.error);
+                // Ignore 'no-speech' errors - just keep listening
+                if (event.error !== 'no-speech') {
+                    console.error('Speech recognition error:', event.error);
+                    voiceBtn.classList.remove('recording');
+                    voiceBtn.textContent = '🎤';
+                    if (event.error === 'not-allowed') {
+                        alert('Microphone access denied. Please allow microphone access and try again.');
+                    }
+                }
             };
             
             recognition.onend = function() {
-                voiceBtn.classList.remove('recording');
-                voiceBtn.textContent = '🎤';
+                // If still recording, restart it (continuous mode)
+                if (voiceBtn.classList.contains('recording')) {
+                    try {
+                        recognition.start();
+                    } catch (error) {
+                        console.log('Restarting recognition...');
+                    }
+                } else {
+                    voiceBtn.classList.remove('recording');
+                    voiceBtn.textContent = '🎤';
+                }
             };
             
             try {
@@ -1067,6 +1121,25 @@
         window.changeType = function() {
             document.getElementById('setupSection').classList.remove('hidden');
             document.getElementById('mainContent').classList.add('hidden');
+        }
+
+        // Handle phone clicks for RingCentral integration
+        window.handlePhoneClick = function(phoneNumber, event) {
+            // RingCentral click-to-call protocols
+            // Try multiple methods to ensure compatibility
+            
+            // Method 1: RingCentral Protocol
+            window.location.href = `rcmobile://call?number=${phoneNumber}`;
+            
+            // Method 2: If RingCentral app isn't responding, try the web version
+            setTimeout(() => {
+                if (confirm('Did RingCentral open? If not, click OK to try the web version.')) {
+                    window.open(`https://app.ringcentral.com/webphone/call?number=${phoneNumber}`, '_blank');
+                }
+            }, 1000);
+            
+            // Prevent default tel: behavior
+            event.preventDefault();
         }
     </script>
 </body>
