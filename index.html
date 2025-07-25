@@ -1,14 +1,4 @@
 <!DOCTYPE html>
-<html lang="en" >
-<head>
-  <meta charset="UTF-8">
-  <title>easy maps3</title>
-  
-
-</head>
-<body>
-<!-- partial:index.partial.html -->
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -795,7 +785,10 @@
                 return;
             }
 
-            filteredBusinesses.forEach((business, index) => {
+            filteredBusinesses.forEach((business, filteredIndex) => {
+                // Find the original index in the businesses array
+                const originalIndex = businesses.findIndex(b => b.name === business.name && b.address === business.address);
+                
                 const status = business.status.toLowerCase();
                 const statusClass = status === 'yes' || status === 'good lead' ? 'yes' : 
                                   status === 'no' || status === 'not suitable' ? 'no' : 
@@ -803,7 +796,7 @@
                 
                 const card = document.createElement('div');
                 card.className = `business-card ${statusClass ? 'marked-' + statusClass : ''} ${business.status ? 'has-status' : ''}`;
-                card.id = `business-${index}`;
+                card.id = `business-${originalIndex}`;
                 
                 // Create street view image URL
                 const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview?size=200x120&location=${encodeURIComponent(business.address)}&key=AIzaSyAJSz4jku9urbCYsov9mZ3_wt_UCtvUQ5w`;
@@ -849,15 +842,15 @@
                     </div>
                     
                     <div class="mark-buttons">
-                        <button class="btn btn-yes" id="btn-yes-${index}" onclick="markBusiness('${encodeURIComponent(business.name)}', 'Good Lead', ${index})">✅ Good Lead</button>
-                        <button class="btn btn-no" id="btn-no-${index}" onclick="markBusiness('${encodeURIComponent(business.name)}', 'Not Suitable', ${index})">❌ Not Suitable</button>
-                        <button class="btn btn-maybe" id="btn-maybe-${index}" onclick="markBusiness('${encodeURIComponent(business.name)}', 'Maybe', ${index})">🤔 Maybe</button>
+                        <button class="btn btn-yes" id="btn-yes-${originalIndex}" onclick="markBusinessByIndex(${originalIndex}, 'Good Lead')">✅ Good Lead</button>
+                        <button class="btn btn-no" id="btn-no-${originalIndex}" onclick="markBusinessByIndex(${originalIndex}, 'Not Suitable')">❌ Not Suitable</button>
+                        <button class="btn btn-maybe" id="btn-maybe-${originalIndex}" onclick="markBusinessByIndex(${originalIndex}, 'Maybe')">🤔 Maybe</button>
                     </div>
                     
                     <div class="notes-container">
-                        <textarea class="notes-input" id="notes-${index}" placeholder="Add notes about this business..." 
-                               onchange="updateNotes('${encodeURIComponent(business.name)}', this.value)">${business.notes}</textarea>
-                        <button class="voice-btn" id="voice-${index}" onclick="toggleVoice(${index})">🎤</button>
+                        <textarea class="notes-input" id="notes-${originalIndex}" placeholder="Add notes about this business..." 
+                               onchange="updateNotesByIndex(${originalIndex}, this.value)">${business.notes || ''}</textarea>
+                        <button class="voice-btn" id="voice-${originalIndex}" onclick="toggleVoice(${originalIndex})">🎤</button>
                     </div>
                     
                     ${business.markedBy ? `<div class="user-indicator">Last updated by ${business.markedBy} ${business.markedAt ? 'on ' + business.markedAt : ''}</div>` : ''}
@@ -873,11 +866,23 @@
             window.open(`https://www.google.com/search?q=${decodeURIComponent(name) + ' ' + decodeURIComponent(address)}`, '_blank');
         }
 
-        async function markBusiness(businessName, status, index) {
+        // NEW FUNCTION: Mark business by index instead of name
+        async function markBusinessByIndex(index, status) {
+            const business = businesses[index];
+            if (!business) {
+                console.error('Business not found at index:', index);
+                return;
+            }
+            
             // Visual feedback - disable all mark buttons for this business
             const yesBtn = document.getElementById(`btn-yes-${index}`);
             const noBtn = document.getElementById(`btn-no-${index}`);
             const maybeBtn = document.getElementById(`btn-maybe-${index}`);
+            
+            if (!yesBtn || !noBtn || !maybeBtn) {
+                console.error('Buttons not found for index:', index);
+                return;
+            }
             
             // Store original text
             const originalTexts = {
@@ -915,7 +920,7 @@
                     },
                     body: JSON.stringify({
                         sheetName: projectName,
-                        businessName: decodeURIComponent(businessName),
+                        businessName: business.name,
                         status: status,
                         markedBy: username
                     })
@@ -925,6 +930,11 @@
                 if (!result.success) {
                     console.error('Error:', result.error);
                 }
+                
+                // Update local data immediately
+                business.status = status;
+                business.markedBy = username;
+                business.markedAt = new Date().toLocaleDateString();
                 
                 // Refresh after update
                 setTimeout(loadBusinesses, 500);
@@ -952,7 +962,14 @@
             }
         }
 
-        async function updateNotes(businessName, notes) {
+        // NEW FUNCTION: Update notes by index
+        async function updateNotesByIndex(index, notes) {
+            const business = businesses[index];
+            if (!business) {
+                console.error('Business not found at index:', index);
+                return;
+            }
+            
             const username = document.getElementById('userName').value.trim();
             const businessTypeSelect = document.getElementById('businessType');
             const projectName = businessTypeSelect.options[businessTypeSelect.selectedIndex].text;
@@ -965,7 +982,7 @@
                     },
                     body: JSON.stringify({
                         sheetName: projectName,
-                        businessName: decodeURIComponent(businessName),
+                        businessName: business.name,
                         notes: notes,
                         markedBy: username
                     })
@@ -975,6 +992,9 @@
                 if (!result.success) {
                     console.error('Notes update error:', result.error);
                 }
+                
+                // Update local data
+                business.notes = notes;
             } catch (error) {
                 console.error('Notes update error:', error);
             }
@@ -1049,9 +1069,5 @@
             document.getElementById('mainContent').classList.add('hidden');
         }
     </script>
-</body>
-</html>
-<!-- partial -->
-  
 </body>
 </html>
