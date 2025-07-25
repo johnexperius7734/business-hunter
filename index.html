@@ -141,8 +141,8 @@
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
             margin-bottom: 30px;
         }
 
@@ -158,6 +158,10 @@
         .stat-box:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .stat-box.called-stat {
+            border-color: #4ecdc4;
         }
 
         .stat-box .number {
@@ -250,9 +254,51 @@
             border-color: #f77f00;
         }
 
+        .business-card.already-called {
+            opacity: 0.7;
+            background: #1a1a1a;
+        }
+
+        .business-card.already-called .business-name {
+            text-decoration: line-through;
+            opacity: 0.8;
+        }
+
+        .called-checkbox {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 5;
+            background: rgba(26, 26, 26, 0.9);
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+
+        .called-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #4ecdc4;
+        }
+
+        .called-checkbox label {
+            cursor: pointer;
+            font-size: 0.9em;
+            color: #999;
+            user-select: none;
+        }
+
+        .called-checkbox label:hover {
+            color: #ccc;
+        }
+
         .business-info {
             margin-bottom: 20px;
             padding-right: 220px;
+            padding-top: 50px;
         }
 
         .business-name {
@@ -469,38 +515,84 @@
             font-family: inherit;
             resize: vertical;
             min-height: 60px;
+            transition: border-color 0.3s ease;
+        }
+
+        .notes-input.recording {
+            border-color: #e63946;
+            box-shadow: 0 0 10px rgba(230, 57, 70, 0.3);
         }
 
         .voice-btn {
             position: absolute;
             right: 10px;
             bottom: 10px;
-            background: #667eea;
+            background: #52b788;
             color: white;
             border: none;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
         .voice-btn:hover {
-            background: #764ba2;
+            background: #74c69d;
+            transform: scale(1.1);
         }
 
         .voice-btn.recording {
             background: #e63946;
             animation: pulse 1s infinite;
+            box-shadow: 0 0 20px rgba(230, 57, 70, 0.5);
+        }
+
+        .voice-btn::after {
+            content: "Ready";
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #52b788;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+
+        .voice-btn.recording::after {
+            content: "Recording...";
+            background: #e63946;
+        }
+
+        .voice-btn:hover::after {
+            opacity: 1;
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+            0% { 
+                transform: scale(1); 
+                box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.7);
+            }
+            50% { 
+                transform: scale(1.1); 
+                box-shadow: 0 0 0 10px rgba(230, 57, 70, 0);
+            }
+            100% { 
+                transform: scale(1); 
+                box-shadow: 0 0 0 0 rgba(230, 57, 70, 0);
+            }
         }
 
         .marked-status {
@@ -556,6 +648,15 @@
             background: #555;
         }
 
+        .btn-clear {
+            background: #6a2d2d;
+            color: #ff6b6b;
+        }
+
+        .btn-clear:hover {
+            background: #8a3d3d;
+        }
+
         @media (max-width: 768px) {
             .action-buttons {
                 flex-direction: column;
@@ -595,6 +696,7 @@
     <div class="header">
         <h1>🚀 BUSINESS RESEARCH HUB</h1>
         <p>Collaborative Research Tool - Powered by Google Sheets</p>
+        <p style="font-size: 0.9em; opacity: 0.8;">🎤 Green = Ready to Record | 🔴 Red = Recording (Click to Stop)</p>
     </div>
 
     <!-- Setup Section -->
@@ -629,6 +731,15 @@
         <button class="btn-connect" onclick="connectToSheets()">🔗 Connect to Google Sheets</button>
         
         <div id="statusMessage"></div>
+        
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #333; color: #999; font-size: 0.9em;">
+            <strong>Quick Guide:</strong>
+            <ul style="margin-top: 10px; line-height: 1.6;">
+                <li><strong>Already Called:</strong> Check the box to track businesses you've called</li>
+                <li><strong>Voice Notes:</strong> Click the green 🎤 to start. It turns red 🔴 and records continuously until you click to stop</li>
+                <li><strong>Phone Numbers:</strong> Click any phone number to copy it</li>
+            </ul>
+        </div>
     </div>
 
     <div id="mainContent" class="hidden">
@@ -636,6 +747,10 @@
             <div class="stat-box">
                 <div class="number" id="totalCount">0</div>
                 <div>Total Businesses</div>
+            </div>
+            <div class="stat-box called-stat">
+                <div class="number" id="calledCount">0</div>
+                <div>📞 Called</div>
             </div>
             <div class="stat-box">
                 <div class="number" id="yesCount">0</div>
@@ -658,6 +773,7 @@
             <button class="btn filter-btn" onclick="filterBusinesses('yes', this)">Yes</button>
             <button class="btn filter-btn" onclick="filterBusinesses('no', this)">No</button>
             <button class="btn filter-btn" onclick="filterBusinesses('maybe', this)">Maybe</button>
+            <button class="btn filter-btn" onclick="filterBusinesses('uncalled', this)">Not Called</button>
         </div>
 
         <div id="businessList">
@@ -667,6 +783,7 @@
         <div class="sync-status">
             <span id="syncStatus">Last sync: Never</span>
             <button class="btn btn-sync" onclick="loadBusinesses()">🔄 Refresh</button>
+            <button class="btn btn-sync btn-clear" onclick="clearCalledStatus()" title="Clear all called checkmarks">🗑️ Clear Calls</button>
             <span style="margin-left: 20px; color: #667eea;">Type: <strong id="currentType">-</strong></span>
             <button class="btn btn-sync" onclick="changeType()">Change Type</button>
             <span style="margin-left: 20px; color: #667eea;">User: <strong id="currentUser">-</strong></span>
@@ -679,19 +796,22 @@
         const SHEET_ID_KEY = 'researchHubSheetId';
         const BUSINESS_TYPE_KEY = 'researchHubBusinessType';
         const USER_NAME_KEY = 'researchHubUserName';
+        const CALLED_BUSINESSES_KEY = 'researchHubCalledBusinesses';
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyfJvobtH1tnf_bHQGVwH1-0eSFjJZ-pKJn2pkkktSx2vm6hi_VBFFyDMMhPpvZLJHV/exec';
         
         let businesses = [];
         let currentFilter = 'all';
         let recognition = null;
+        let recordingStartTime = null;
         
         // Initialize speech recognition
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
+            recognition.continuous = true;  // Keep listening until stopped
+            recognition.interimResults = true;  // Show results while speaking
             recognition.lang = 'en-US';
+            recognition.maxAlternatives = 1;
         }
 
         // Load saved configuration
@@ -783,7 +903,18 @@
             const noCount = businesses.filter(b => b.status.toLowerCase() === 'no' || b.status.toLowerCase() === 'not suitable').length;
             const maybeCount = businesses.filter(b => b.status.toLowerCase() === 'maybe').length;
             
+            // Count called businesses
+            const calledBusinesses = JSON.parse(localStorage.getItem(CALLED_BUSINESSES_KEY) || '{}');
+            let calledCount = 0;
+            businesses.forEach(business => {
+                const businessKey = `${business.name}_${business.address}`;
+                if (calledBusinesses[businessKey]) {
+                    calledCount++;
+                }
+            });
+            
             document.getElementById('totalCount').textContent = totalCount;
+            document.getElementById('calledCount').textContent = calledCount;
             document.getElementById('yesCount').textContent = yesCount;
             document.getElementById('noCount').textContent = noCount;
             document.getElementById('maybeCount').textContent = maybeCount;
@@ -802,13 +933,21 @@
             businessList.innerHTML = '';
 
             const filteredBusinesses = businesses.filter(business => {
+                // Check if business is called
+                const businessKey = `${business.name}_${business.address}`;
+                const calledBusinesses = JSON.parse(localStorage.getItem(CALLED_BUSINESSES_KEY) || '{}');
+                const isCalled = calledBusinesses[businessKey] || false;
+                
+                // Apply called filter first
+                if (currentFilter === 'uncalled' && isCalled) return false;
+                
                 // Normalize status for filtering
                 const status = business.status.toLowerCase();
                 const isYes = status === 'yes' || status === 'good lead';
                 const isNo = status === 'no' || status === 'not suitable';
                 const isMaybe = status === 'maybe';
                 
-                // Apply filter
+                // Apply other filters
                 if (currentFilter === 'unmarked' && business.status) return false;
                 if (currentFilter === 'yes' && !isYes) return false;
                 if (currentFilter === 'no' && !isNo) return false;
@@ -841,6 +980,14 @@
                 card.className = `business-card ${statusClass ? 'marked-' + statusClass : ''} ${business.status ? 'has-status' : ''}`;
                 card.id = `business-${originalIndex}`;
                 
+                // Check if this business was already called
+                const calledBusinesses = JSON.parse(localStorage.getItem(CALLED_BUSINESSES_KEY) || '{}');
+                const businessKey = `${business.name}_${business.address}`;
+                const isAlreadyCalled = calledBusinesses[businessKey] || false;
+                if (isAlreadyCalled) {
+                    card.classList.add('already-called');
+                }
+                
                 // Create street view image URL
                 const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview?size=200x120&location=${encodeURIComponent(business.address)}&key=AIzaSyAJSz4jku9urbCYsov9mZ3_wt_UCtvUQ5w`;
                 
@@ -853,6 +1000,11 @@
                 }
                 
                 card.innerHTML = `
+                    <div class="called-checkbox">
+                        <input type="checkbox" id="called-${originalIndex}" ${isAlreadyCalled ? 'checked' : ''} 
+                               onchange="toggleCalled(${originalIndex})">
+                        <label for="called-${originalIndex}">Already Called</label>
+                    </div>
                     ${business.status ? `<div class="marked-status status-${statusClass}">${business.status}</div>` : ''}
                     <div class="street-view-preview">
                         <img src="${streetViewUrl}" alt="Street view of ${business.name}" onerror="this.src='https://via.placeholder.com/200x120/1a1a1a/666?text=No+Street+View'">
@@ -893,7 +1045,7 @@
                     <div class="notes-container">
                         <textarea class="notes-input" id="notes-${originalIndex}" placeholder="Add notes about this business..." 
                                onchange="updateNotesByIndex(${originalIndex}, this.value)">${business.notes || ''}</textarea>
-                        <button class="voice-btn" id="voice-${originalIndex}" onclick="toggleVoice(${originalIndex})">🎤</button>
+                        <button class="voice-btn" id="voice-${originalIndex}" onclick="toggleVoice(${originalIndex})" title="Click to start recording">🎤</button>
                     </div>
                     
                     ${business.markedBy ? `<div class="user-indicator">Last updated by ${business.markedBy} ${business.markedAt ? 'on ' + business.markedAt : ''}</div>` : ''}
@@ -1054,32 +1206,79 @@
             const notesField = document.getElementById(`notes-${index}`);
             
             if (voiceBtn.classList.contains('recording')) {
+                // Stop recording
                 recognition.stop();
                 voiceBtn.classList.remove('recording');
                 voiceBtn.textContent = '🎤';
+                voiceBtn.title = 'Click to start recording';
+                notesField.classList.remove('recording');
                 return;
             }
             
+            // Start recording
             voiceBtn.classList.add('recording');
             voiceBtn.textContent = '🔴';
+            voiceBtn.title = 'Recording... Click to stop';
+            notesField.classList.add('recording');
+            
+            let finalTranscript = notesField.value || '';
+            let lastResultLength = 0;
             
             recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript;
-                const currentText = notesField.value;
-                notesField.value = currentText + (currentText ? ' ' : '') + transcript;
-                notesField.dispatchEvent(new Event('change'));
+                let interimTranscript = '';
+                
+                // Process all results since last update
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                        notesField.value = finalTranscript;
+                        notesField.dispatchEvent(new Event('change'));
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                // Show interim results (what's being said right now)
+                if (interimTranscript) {
+                    notesField.value = finalTranscript + interimTranscript;
+                }
             };
             
             recognition.onerror = function(event) {
+                // Ignore 'no-speech' errors, keep listening
+                if (event.error === 'no-speech') {
+                    console.log('No speech detected, still listening...');
+                    return;
+                }
+                
                 console.error('Speech recognition error:', event.error);
                 voiceBtn.classList.remove('recording');
                 voiceBtn.textContent = '🎤';
-                alert('Voice recognition error: ' + event.error);
+                voiceBtn.title = 'Click to start recording';
+                notesField.classList.remove('recording');
+                
+                if (event.error === 'not-allowed') {
+                    alert('Microphone access denied. Please allow microphone access and try again.');
+                } else {
+                    alert('Voice recognition error: ' + event.error);
+                }
             };
             
             recognition.onend = function() {
-                voiceBtn.classList.remove('recording');
-                voiceBtn.textContent = '🎤';
+                // If still supposed to be recording, restart
+                if (voiceBtn.classList.contains('recording')) {
+                    try {
+                        recognition.start();
+                    } catch (error) {
+                        console.log('Restarting recognition...');
+                    }
+                } else {
+                    voiceBtn.classList.remove('recording');
+                    voiceBtn.textContent = '🎤';
+                    voiceBtn.title = 'Click to start recording';
+                    notesField.classList.remove('recording');
+                }
             };
             
             try {
@@ -1088,6 +1287,9 @@
                 console.error('Failed to start recognition:', error);
                 voiceBtn.classList.remove('recording');
                 voiceBtn.textContent = '🎤';
+                voiceBtn.title = 'Click to start recording';
+                notesField.classList.remove('recording');
+                alert('Failed to start voice recognition. Please try again.');
             }
         }
 
@@ -1110,6 +1312,15 @@
         window.changeType = function() {
             document.getElementById('setupSection').classList.remove('hidden');
             document.getElementById('mainContent').classList.add('hidden');
+        }
+
+        // Clear all called statuses
+        window.clearCalledStatus = function() {
+            if (confirm('Clear all "Already Called" checkmarks? This cannot be undone.')) {
+                localStorage.removeItem(CALLED_BUSINESSES_KEY);
+                renderBusinesses();
+                alert('All called statuses have been cleared.');
+            }
         }
 
         // Copy phone number function
@@ -1136,6 +1347,28 @@
             }).catch(err => {
                 alert('Failed to copy phone number. You can manually select and copy it.');
             });
+        }
+
+        // Toggle called status
+        window.toggleCalled = function(index) {
+            const business = businesses[index];
+            if (!business) return;
+            
+            const businessKey = `${business.name}_${business.address}`;
+            const calledBusinesses = JSON.parse(localStorage.getItem(CALLED_BUSINESSES_KEY) || '{}');
+            const checkbox = document.getElementById(`called-${index}`);
+            const card = document.getElementById(`business-${index}`);
+            
+            if (checkbox.checked) {
+                calledBusinesses[businessKey] = true;
+                card.classList.add('already-called');
+            } else {
+                delete calledBusinesses[businessKey];
+                card.classList.remove('already-called');
+            }
+            
+            localStorage.setItem(CALLED_BUSINESSES_KEY, JSON.stringify(calledBusinesses));
+            updateStats(); // Update the called count
         }
     </script>
 </body>
