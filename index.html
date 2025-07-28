@@ -553,6 +553,10 @@
             box-shadow: 0 0 20px rgba(230, 57, 70, 0.5);
         }
 
+        .voice-btn.recording:hover {
+            background: #f07178;
+        }
+
         .voice-btn::after {
             content: "Ready";
             position: absolute;
@@ -802,16 +806,15 @@
         let businesses = [];
         let currentFilter = 'all';
         let recognition = null;
-        let recordingStartTime = null;
+        let activeRecognitions = {}; // Track active recognition instances per field
         
-        // Initialize speech recognition
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;  // Keep listening until stopped
-            recognition.interimResults = true;  // Show results while speaking
-            recognition.lang = 'en-US';
-            recognition.maxAlternatives = 1;
+        // Initialize speech recognition with better error handling
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                return new SpeechRecognition();
+            }
+            return null;
         }
 
         // Load saved configuration
@@ -1195,25 +1198,34 @@
             }
         }
 
-        // Voice recognition functions
+        // IMPROVED Voice recognition function
         function toggleVoice(index) {
+            const voiceBtn = document.getElementById(`voice-${index}`);
+            const notesField = document.getElementById(`notes-${index}`);
+            
+            if (!voiceBtn || !notesField) {
+                console.error('Voice elements not found');
+                return;
+            }
+            
+            // If already recording, stop it
+            if (activeRecognitions[index]) {
+                stopRecording(index);
+                return;
+            }
+            
+            // Create new recognition instance for this field
+            const recognition = initSpeechRecognition();
             if (!recognition) {
                 alert('Voice recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
                 return;
             }
             
-            const voiceBtn = document.getElementById(`voice-${index}`);
-            const notesField = document.getElementById(`notes-${index}`);
-            
-            if (voiceBtn.classList.contains('recording')) {
-                // Stop recording
-                recognition.stop();
-                voiceBtn.classList.remove('recording');
-                voiceBtn.textContent = '🎤';
-                voiceBtn.title = 'Click to start recording';
-                notesField.classList.remove('recording');
-                return;
-            }
+            // Configure recognition
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            recognition.maxAlternatives = 1;
             
             // Start recording
             voiceBtn.classList.add('recording');
@@ -1222,12 +1234,11 @@
             notesField.classList.add('recording');
             
             let finalTranscript = notesField.value || '';
-            let lastResultLength = 0;
+            let isRestarting = false;
             
             recognition.onresult = function(event) {
                 let interimTranscript = '';
                 
-                // Process all results since last update
                 for (let i = event.resultIndex; i < event.results.length; i++) {
                     const transcript = event.results[i][0].transcript;
                     if (event.results[i].isFinal) {
@@ -1239,57 +1250,81 @@
                     }
                 }
                 
-                // Show interim results (what's being said right now)
                 if (interimTranscript) {
                     notesField.value = finalTranscript + interimTranscript;
                 }
             };
             
             recognition.onerror = function(event) {
-                // Ignore 'no-speech' errors, keep listening
-                if (event.error === 'no-speech') {
-                    console.log('No speech detected, still listening...');
-                    return;
-                }
+                console.log('Speech recognition error:', event.error);
                 
-                console.error('Speech recognition error:', event.error);
-                voiceBtn.classList.remove('recording');
-                voiceBtn.textContent = '🎤';
-                voiceBtn.title = 'Click to start recording';
-                notesField.classList.remove('recording');
-                
-                if (event.error === 'not-allowed') {
-                    alert('Microphone access denied. Please allow microphone access and try again.');
-                } else {
-                    alert('Voice recognition error: ' + event.error);
+                // Only stop on critical errors
+                if (event.error === 'not-allowed' || event.error === 'no-speech') {
+                    if (event.error === 'not-allowed') {
+                        alert('Microphone access denied. Please allow microphone access and try again.');
+                        stopRecording(index);
+                    }
+                    // For no-speech, just log it but keep going
+                } else if (event.error === 'network') {
+                    console.log('Network error, will retry...');
                 }
             };
             
             recognition.onend = function() {
-                // If still supposed to be recording, restart
-                if (voiceBtn.classList.contains('recording')) {
-                    try {
-                        recognition.start();
-                    } catch (error) {
-                        console.log('Restarting recognition...');
-                    }
+                console.log('Recognition ended');
+                
+                // Only restart if we're still supposed to be recording and not already restarting
+                if (activeRecognitions[index] && !isRestarting && voiceBtn.classList.contains('recording')) {
+                    isRestarting = true;
+                    setTimeout(() => {
+                        try {
+                            if (activeRecognitions[index]) {
+                                recognition.start();
+                                isRestarting = false;
+                            }
+                        } catch (error) {
+                            console.log('Restart failed, stopping recording');
+                            stopRecording(index);
+                        }
+                    }, 100); // Small delay before restart
                 } else {
-                    voiceBtn.classList.remove('recording');
-                    voiceBtn.textContent = '🎤';
-                    voiceBtn.title = 'Click to start recording';
-                    notesField.classList.remove('recording');
+                    stopRecording(index);
                 }
             };
             
+            // Start recognition
             try {
                 recognition.start();
+                activeRecognitions[index] = recognition;
+                console.log('Started recording for field', index);
             } catch (error) {
                 console.error('Failed to start recognition:', error);
+                alert('Failed to start voice recognition. Please try again.');
+                stopRecording(index);
+            }
+        }
+        
+        function stopRecording(index) {
+            const voiceBtn = document.getElementById(`voice-${index}`);
+            const notesField = document.getElementById(`notes-${index}`);
+            
+            if (activeRecognitions[index]) {
+                try {
+                    activeRecognitions[index].stop();
+                } catch (error) {
+                    console.log('Error stopping recognition:', error);
+                }
+                delete activeRecognitions[index];
+            }
+            
+            if (voiceBtn) {
                 voiceBtn.classList.remove('recording');
                 voiceBtn.textContent = '🎤';
                 voiceBtn.title = 'Click to start recording';
+            }
+            
+            if (notesField) {
                 notesField.classList.remove('recording');
-                alert('Failed to start voice recognition. Please try again.');
             }
         }
 
