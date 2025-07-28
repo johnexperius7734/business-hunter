@@ -902,9 +902,18 @@
 
         function updateStats() {
             const totalCount = businesses.length;
-            const yesCount = businesses.filter(b => b.status.toLowerCase() === 'yes' || b.status.toLowerCase() === 'good lead').length;
-            const noCount = businesses.filter(b => b.status.toLowerCase() === 'no' || b.status.toLowerCase() === 'not suitable').length;
-            const maybeCount = businesses.filter(b => b.status.toLowerCase() === 'maybe').length;
+            const yesCount = businesses.filter(b => {
+                const status = (b.status || '').toLowerCase();
+                return status === 'yes' || status === 'good lead';
+            }).length;
+            const noCount = businesses.filter(b => {
+                const status = (b.status || '').toLowerCase();
+                return status === 'no' || status === 'not suitable';
+            }).length;
+            const maybeCount = businesses.filter(b => {
+                const status = (b.status || '').toLowerCase();
+                return status === 'maybe';
+            }).length;
             
             // Count called businesses
             const calledBusinesses = JSON.parse(localStorage.getItem(CALLED_BUSINESSES_KEY) || '{}');
@@ -945,7 +954,7 @@
                 if (currentFilter === 'uncalled' && isCalled) return false;
                 
                 // Normalize status for filtering
-                const status = business.status.toLowerCase();
+                const status = (business.status || '').toLowerCase();
                 const isYes = status === 'yes' || status === 'good lead';
                 const isNo = status === 'no' || status === 'not suitable';
                 const isMaybe = status === 'maybe';
@@ -974,7 +983,7 @@
                 // Find the original index in the businesses array
                 const originalIndex = businesses.findIndex(b => b.name === business.name && b.address === business.address);
                 
-                const status = business.status.toLowerCase();
+                const status = (business.status || '').toLowerCase();
                 const statusClass = status === 'yes' || status === 'good lead' ? 'yes' : 
                                   status === 'no' || status === 'not suitable' ? 'no' : 
                                   status === 'maybe' ? 'maybe' : '';
@@ -1008,7 +1017,7 @@
                                onchange="toggleCalled(${originalIndex})">
                         <label for="called-${originalIndex}">Already Called</label>
                     </div>
-                    ${business.status ? `<div class="marked-status status-${statusClass}">${business.status}</div>` : ''}
+                    ${business.status ? `<div class="marked-status status-${statusClass}">${business.status}</div>` : '<div class="marked-status" style="background: #4285f4;">NEW</div>'}
                     <div class="street-view-preview">
                         <img src="${streetViewUrl}" alt="Street view of ${business.name}" onerror="this.src='https://via.placeholder.com/200x120/1a1a1a/666?text=No+Street+View'">
                     </div>
@@ -1072,6 +1081,8 @@
                 return;
             }
             
+            console.log('Updating business:', business.name, 'to status:', status);
+            
             // Visual feedback - disable all mark buttons for this business
             const yesBtn = document.getElementById(`btn-yes-${index}`);
             const noBtn = document.getElementById(`btn-no-${index}`);
@@ -1127,17 +1138,20 @@
                 const result = await response.json();
                 if (!result.success) {
                     console.error('Error:', result.error);
+                    alert('Failed to update status. Error: ' + (result.error || 'Unknown error'));
+                } else {
+                    console.log('Update successful');
+                    // Update local data immediately
+                    business.status = status;
+                    business.markedBy = username;
+                    business.markedAt = new Date().toLocaleDateString();
                 }
-                
-                // Update local data immediately
-                business.status = status;
-                business.markedBy = username;
-                business.markedAt = new Date().toLocaleDateString();
                 
                 // Refresh after update
                 setTimeout(loadBusinesses, 500);
             } catch (error) {
                 console.error('Update error:', error);
+                alert('Failed to update status. Please check your connection and try again.');
                 // Still refresh to show any changes
                 setTimeout(loadBusinesses, 500);
             } finally {
